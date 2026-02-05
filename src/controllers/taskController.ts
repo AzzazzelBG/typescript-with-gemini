@@ -1,11 +1,30 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import { ApiResponse } from "../models/ApiResponse";
+import { TaskSchema } from "../models/TaskSchema";
+import { formatZodError } from "../utils/formatErrors";
+import { DataService } from "../models/DataService";
+import { success } from "zod";
 
 interface Task {
     id: number;
     title: string;
     completed: boolean;
 }
+
+const taskService = new DataService(TaskSchema);
+
+export const createTask = (req: Request, res: Response, next: NextFunction) => {
+    try {
+        taskService.add(req.body);
+
+        res.status(201).json({
+            success: true,
+            message: "Task created successfully"
+        });
+    } catch (error: any) {
+        next(error);
+    }
+};
 
 export const getTask = (req: Request, res: Response) => {
     const task: Task = { id: 1, title: "Learn Generics", completed: false };
